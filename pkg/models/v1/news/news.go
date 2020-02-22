@@ -1,6 +1,7 @@
 package news
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/bungysheep/news-api/pkg/models/v1/basemodel"
@@ -38,6 +39,20 @@ func (news *News) GetBody() string {
 // GetCreated - Returns created
 func (news *News) GetCreated() time.Time {
 	return news.Created
+}
+
+// MarshalBinary - Marshal binary
+func (news *News) MarshalBinary() ([]byte, error) {
+	return json.Marshal(news)
+}
+
+// UnmarshalBinary - Unmarshal binary
+func (news *News) UnmarshalBinary(data []byte) error {
+	if err := json.Unmarshal(data, &news); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // DoValidate - Validates news

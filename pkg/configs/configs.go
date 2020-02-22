@@ -15,4 +15,10 @@ const (
 
 	// REDISURL - Redis url
 	REDISURL = "localhost:6379"
+
+	// REDISNEWSPOSTCHANNEL - Redis news post channel
+	REDISNEWSPOSTCHANNEL = "NEWS_POST_CHANNEL"
+
+	// NUMBERRECORDS - Redis news post channel
+	NUMBERRECORDS = 10
 )
