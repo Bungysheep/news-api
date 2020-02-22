@@ -48,3 +48,32 @@ func (mr *MockINewsRepositoryMockRecorder) GetByID(arg0, arg1 interface{}) *gomo
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockINewsRepository)(nil).GetByID), arg0, arg1)
 }
+
+// Publish mocks base method
+func (m *MockINewsRepository) Publish(arg0 *news.News) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Publish", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Publish indicates an expected call of Publish
+func (mr *MockINewsRepositoryMockRecorder) Publish(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockINewsRepository)(nil).Publish), arg0)
+}
+
+// GetIDsByPage mocks base method
+func (m *MockINewsRepository) GetIDsByPage(arg0 context.Context, arg1 int) ([]int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetIDsByPage", arg0, arg1)
+	ret0, _ := ret[0].([]int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetIDsByPage indicates an expected call of GetIDsByPage
+func (mr *MockINewsRepositoryMockRecorder) GetIDsByPage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetIDsByPage", reflect.TypeOf((*MockINewsRepository)(nil).GetIDsByPage), arg0, arg1)
+}

@@ -9,9 +9,10 @@ import (
 	"github.com/bungysheep/news-api/pkg/controllers/v1/basecontroller"
 	newsmodel "github.com/bungysheep/news-api/pkg/models/v1/news"
 	"github.com/bungysheep/news-api/pkg/protocols/database"
+	"github.com/bungysheep/news-api/pkg/protocols/elasticsearch"
+	"github.com/bungysheep/news-api/pkg/protocols/redis"
 	newsrepository "github.com/bungysheep/news-api/pkg/repositories/v1/newsrepository"
 	"github.com/bungysheep/news-api/pkg/services/v1/newsservice"
-	"github.com/gorilla/mux"
 )
 
 // NewsController type
@@ -41,7 +42,7 @@ func (newsCtl *NewsController) PostNews(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	newsSvc := newsservice.NewNewsService(newsrepository.NewNewsRepository(database.DbConnection))
+	newsSvc := newsservice.NewNewsService(newsrepository.NewNewsRepository(database.DbConnection, redis.RedisClient, elasticsearch.ESClient))
 	if err := newsSvc.DoPost(r.Context(), news); err != nil {
 		newsCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
 		return
@@ -52,12 +53,16 @@ func (newsCtl *NewsController) PostNews(w http.ResponseWriter, r *http.Request) 
 
 // GetNews - Retrieve news
 func (newsCtl *NewsController) GetNews(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	page, err := strconv.ParseInt(params["page"], 10, 64)
+	queries := r.URL.Query()
+	page, err := strconv.Atoi(queries.Get("page"))
+
+	if page < 1 {
+		page = 1
+	}
 
 	log.Printf("Retrieving News page '%v'.\n", page)
 
-	newsSvc := newsservice.NewNewsService(newsrepository.NewNewsRepository(database.DbConnection))
+	newsSvc := newsservice.NewNewsService(newsrepository.NewNewsRepository(database.DbConnection, redis.RedisClient, elasticsearch.ESClient))
 	result, err := newsSvc.DoRead(r.Context(), page)
 	if err != nil {
 		newsCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())

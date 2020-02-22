@@ -3,16 +3,14 @@ package newsservice
 import (
 	"context"
 
-	"github.com/bungysheep/news-api/pkg/configs"
 	newsmodel "github.com/bungysheep/news-api/pkg/models/v1/news"
-	"github.com/bungysheep/news-api/pkg/protocols/redis"
 	newsrepository "github.com/bungysheep/news-api/pkg/repositories/v1/newsrepository"
 )
 
 // INewsService type
 type INewsService interface {
 	DoPost(context.Context, *newsmodel.News) error
-	DoRead(context.Context, int64) ([]*newsmodel.News, error)
+	DoRead(context.Context, int) ([]*newsmodel.News, error)
 }
 
 type newsService struct {
@@ -27,26 +25,27 @@ func NewNewsService(newsRepo newsrepository.INewsRepository) INewsService {
 }
 
 func (newsSvc *newsService) DoPost(ctx context.Context, data *newsmodel.News) error {
-	err := redis.RedisClient.Publish(configs.REDISNEWSPOSTCHANNEL, data).Err()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return newsSvc.NewsRepository.Publish(data)
 }
 
-func (newsSvc *newsService) DoRead(ctx context.Context, page int64) ([]*newsmodel.News, error) {
+func (newsSvc *newsService) DoRead(ctx context.Context, page int) ([]*newsmodel.News, error) {
 	result := make([]*newsmodel.News, 0)
 
-	if page < 1 {
-		page = 1
+	ids, err := newsSvc.NewsRepository.GetIDsByPage(ctx, page)
+	if err != nil {
+		return result, nil
 	}
 
-	itemNews, err := newsSvc.NewsRepository.GetByID(ctx, 0)
-	if err != nil {
-		return result, err
+	for _, newID := range ids {
+		itemNews, err := newsSvc.NewsRepository.GetByID(ctx, newID)
+		if err != nil {
+			return result, err
+		}
+
+		if itemNews != nil {
+			result = append(result, itemNews)
+		}
 	}
-	result = append(result, itemNews)
 
 	return result, nil
 }

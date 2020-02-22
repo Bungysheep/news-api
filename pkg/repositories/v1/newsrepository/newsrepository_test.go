@@ -10,6 +10,8 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	newsmodel "github.com/bungysheep/news-api/pkg/models/v1/news"
+	"github.com/bungysheep/news-api/pkg/protocols/elasticsearch"
+	"github.com/bungysheep/news-api/pkg/protocols/redis"
 )
 
 var (
@@ -26,7 +28,7 @@ func TestMain(m *testing.M) {
 	db, mock, _ = sqlmock.New()
 	defer db.Close()
 
-	repo = NewNewsRepository(db)
+	repo = NewNewsRepository(db, redis.RedisClient, elasticsearch.ESClient)
 
 	data = append(data, &newsmodel.News{
 		ID:      1,
