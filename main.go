@@ -8,6 +8,7 @@ import (
 	"os/signal"
 
 	"github.com/bungysheep/news-api/pkg/protocols/database"
+	"github.com/bungysheep/news-api/pkg/protocols/elasticsearch"
 	"github.com/bungysheep/news-api/pkg/protocols/redis"
 	"github.com/bungysheep/news-api/pkg/protocols/rest"
 	_ "github.com/lib/pq"
@@ -23,6 +24,10 @@ func startUp() error {
 	restServer := rest.NewRestServer()
 
 	if err := redis.CreateRedisClient(); err != nil {
+		return err
+	}
+
+	if err := elasticsearch.CreateESClient(); err != nil {
 		return err
 	}
 
