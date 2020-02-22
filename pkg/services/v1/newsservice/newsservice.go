@@ -24,16 +24,18 @@ func NewNewsService(newsRepo newsrepository.INewsRepository) INewsService {
 	}
 }
 
+// DoPost - Post news
 func (newsSvc *newsService) DoPost(ctx context.Context, data *newsmodel.News) error {
 	return newsSvc.NewsRepository.Publish(data)
 }
 
+// DoRead - Read news
 func (newsSvc *newsService) DoRead(ctx context.Context, page int) ([]*newsmodel.News, error) {
 	result := make([]*newsmodel.News, 0)
 
 	ids, err := newsSvc.NewsRepository.GetIDsByPage(ctx, page)
 	if err != nil {
-		return result, nil
+		return result, err
 	}
 
 	for _, newID := range ids {

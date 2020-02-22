@@ -35,6 +35,7 @@ func NewNewsRepository(db *sql.DB, redisClient *redisv7.Client, esClient *elasti
 	}
 }
 
+// GetByID - Retrieve news by ID
 func (newsRepo *newsRepository) GetByID(ctx context.Context, id int64) (*newsmodel.News, error) {
 	result := newsmodel.NewNews()
 
@@ -77,6 +78,7 @@ func (newsRepo *newsRepository) GetByID(ctx context.Context, id int64) (*newsmod
 	return result, nil
 }
 
+// Publish - Publish news into redis
 func (newsRepo *newsRepository) Publish(data *newsmodel.News) error {
 	err := newsRepo.RedisClient.Publish(configs.REDISNEWSPOSTCHANNEL, data).Err()
 	if err != nil {
@@ -86,6 +88,7 @@ func (newsRepo *newsRepository) Publish(data *newsmodel.News) error {
 	return nil
 }
 
+// GetIDsByPage - Returns news IDs per page
 func (newsRepo *newsRepository) GetIDsByPage(ctx context.Context, page int) ([]int64, error) {
 	ids := make([]int64, 0)
 
