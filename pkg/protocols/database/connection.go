@@ -32,7 +32,7 @@ func CreateDbConnection() error {
 }
 
 func resolveDbConnectionString() (string, error) {
-	connString := os.Getenv("DBCONNSTRING")
+	connString := os.Getenv("DATABASE_URL")
 	if connString != "" {
 		return connString, nil
 	}
