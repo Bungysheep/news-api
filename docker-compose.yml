@@ -26,8 +26,19 @@ services:
             - 5432:5432
         container_name: news-pg
     
+    news-migration:
+        build:
+            context: ./dbmigrations
+            dockerfile: 'Dockerfile'
+        depends_on:
+            - news-pg
+        container_name: news-migration
+        command: ["-path", "/migrations", "-database",  "postgres://news-local-pg:news-local-pg@news-pg:5432/news-local-pg?sslmode=disable", "up"]
+    
     news-api:
-        image: jamese/news-api
+        build:
+            context: .
+            dockerfile: 'Dockerfile'
         environment:
             - ELASTICSEARCH_URL=http://news-es:9200/
             - REDIS_URL=news-redis:6379

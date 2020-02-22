@@ -2,6 +2,7 @@ package newsservice
 
 import (
 	"context"
+	"sync"
 
 	newsmodel "github.com/bungysheep/news-api/pkg/models/v1/news"
 	newsrepository "github.com/bungysheep/news-api/pkg/repositories/v1/newsrepository"
@@ -38,16 +39,53 @@ func (newsSvc *newsService) DoRead(ctx context.Context, page int) ([]*newsmodel.
 		return result, err
 	}
 
-	for _, newID := range ids {
-		itemNews, err := newsSvc.NewsRepository.GetByID(ctx, newID)
-		if err != nil {
-			return result, err
-		}
+	resultChan := make(chan *newsmodel.News)
+	errChan := make(chan error)
+	done := make(chan bool)
 
-		if itemNews != nil {
-			result = append(result, itemNews)
+	go func() {
+		for {
+			select {
+			case errTemp := <-errChan:
+				err = errTemp
+				done <- true
+				return
+			case item, more := <-resultChan:
+				if more {
+					result = append(result, item)
+				} else {
+					done <- true
+					return
+				}
+			default:
+
+			}
 		}
+	}()
+
+	var wg sync.WaitGroup
+	for _, newsID := range ids {
+		wg.Add(1)
+		go func(newsID int64, wg *sync.WaitGroup) {
+			defer wg.Done()
+
+			itemNews, err := newsSvc.NewsRepository.GetByID(ctx, newsID)
+			if err != nil {
+				errChan <- err
+				return
+			}
+
+			if itemNews != nil {
+				result = append(result, itemNews)
+			}
+		}(newsID, &wg)
 	}
+	wg.Wait()
 
-	return result, nil
+	close(resultChan)
+	close(errChan)
+
+	<-done
+
+	return result, err
 }
