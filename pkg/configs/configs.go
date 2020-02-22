@@ -22,6 +22,6 @@ const (
 	// REDISNEWSPOSTCHANNEL - Redis news post channel
 	REDISNEWSPOSTCHANNEL = "NEWS_POST_CHANNEL"
 
-	// NUMBERRECORDS - Redis news post channel
-	NUMBERRECORDS = 3
+	// NUMBERRECORDS - Number records per page
+	NUMBERRECORDS = 10
 )
