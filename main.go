@@ -8,6 +8,7 @@ import (
 	"os/signal"
 
 	"github.com/bungysheep/news-api/pkg/protocols/rest"
+	_ "github.com/lib/pq"
 )
 
 func main() {

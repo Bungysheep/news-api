@@ -9,4 +9,7 @@ const (
 
 	// WRITETIMEOUT - Write timeout
 	WRITETIMEOUT = 10
+
+	// DBCONNSTRINGVARIABLE - Database connection string variable
+	DBCONNSTRINGVARIABLE = "PGDBCONNSTRING"
 )
