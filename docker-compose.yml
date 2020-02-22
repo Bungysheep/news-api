@@ -1,0 +1,41 @@
+version: '3'
+
+services: 
+    news-es:
+        image: elasticsearch:7.4.0
+        environment:
+            - discovery.type=single-node
+        ports:
+            - 9200:9200
+            - 9300:9300
+        container_name: news-es
+    
+    news-redis:
+        image: redis
+        ports:
+            - 6379:6379
+        container_name: news-redis
+
+    news-pg:
+        image: postgres
+        environment:
+            - POSTGRES_DB=news-local-pg
+            - POSTGRES_USER=news-local-pg
+            - POSTGRES_PASSWORD=news-local-pg
+        ports:
+            - 5432:5432
+        container_name: news-pg
+    
+    news-api:
+        image: jamese/news-api
+        environment:
+            - ELASTICSEARCH_URL=http://news-es:9200/
+            - REDIS_URL=news-redis:6379
+            - DATABASE_URL=postgres://news-local-pg:news-local-pg@news-pg:5432/news-local-pg?sslmode=disable
+        ports: 
+            - 50051:50051
+        depends_on:
+            - news-es
+            - news-redis
+            - news-pg
+        container_name: news-api
