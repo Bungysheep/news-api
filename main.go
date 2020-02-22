@@ -8,6 +8,7 @@ import (
 	"os/signal"
 
 	"github.com/bungysheep/news-api/pkg/protocols/database"
+	"github.com/bungysheep/news-api/pkg/protocols/redis"
 	"github.com/bungysheep/news-api/pkg/protocols/rest"
 	_ "github.com/lib/pq"
 )
@@ -21,6 +22,10 @@ func main() {
 func startUp() error {
 	restServer := rest.NewRestServer()
 
+	if err := redis.CreateRedisClient(); err != nil {
+		return err
+	}
+
 	if err := database.CreateDbConnection(); err != nil {
 		return err
 	}
@@ -31,6 +36,12 @@ func startUp() error {
 	go func() {
 		for range c {
 			ctx := context.TODO()
+
+			log.Printf("Closing redis client...\n")
+			redis.RedisClient.Close()
+
+			log.Printf("Closing database connection...\n")
+			database.DbConnection.Close()
 
 			log.Printf("Stoping http server...\n")
 			restServer.Shutdown(ctx)

@@ -12,4 +12,7 @@ const (
 
 	// DBCONNSTRING - Database connection string
 	DBCONNSTRING = "postgres://news-local-pg:news-local-pg@localhost:5432/news-local-pg?sslmode=disable"
+
+	// REDISURL - Redis url
+	REDISURL = "localhost:6379"
 )
