@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/bungysheep/news-api/pkg/protocols/database"
 	"github.com/bungysheep/news-api/pkg/protocols/rest"
 	_ "github.com/lib/pq"
 )
@@ -19,6 +20,10 @@ func main() {
 
 func startUp() error {
 	restServer := rest.NewRestServer()
+
+	if err := database.CreateDbConnection(); err != nil {
+		return err
+	}
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)

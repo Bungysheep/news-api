@@ -2,11 +2,9 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
+	"github.com/bungysheep/news-api/pkg/configs"
 	"log"
 	"os"
-
-	"github.com/bungysheep/news-api/pkg/configs"
 )
 
 var (
@@ -34,9 +32,10 @@ func CreateDbConnection() error {
 }
 
 func resolveDbConnectionString() (string, error) {
-	connString := os.Getenv(configs.DBCONNSTRINGVARIABLE)
+	connString := os.Getenv("DBCONNSTRING")
 	if connString != "" {
-		return "", fmt.Errorf("Database connection string variable (%s) must be specified", configs.DBCONNSTRINGVARIABLE)
+		return connString, nil
 	}
-	return connString, nil
+
+	return configs.DBCONNSTRING, nil
 }

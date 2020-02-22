@@ -10,6 +10,6 @@ const (
 	// WRITETIMEOUT - Write timeout
 	WRITETIMEOUT = 10
 
-	// DBCONNSTRINGVARIABLE - Database connection string variable
-	DBCONNSTRINGVARIABLE = "PGDBCONNSTRING"
+	// DBCONNSTRING - Database connection string
+	DBCONNSTRING = "postgres://news-local-pg:news-local-pg@localhost:5432/news-local-pg?sslmode=disable"
 )
