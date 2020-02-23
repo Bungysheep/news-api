@@ -2,10 +2,13 @@ package newscontroller
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
+	"github.com/bungysheep/news-api/pkg/configs"
 	"github.com/bungysheep/news-api/pkg/controllers/v1/basecontroller"
 	newsmodel "github.com/bungysheep/news-api/pkg/models/v1/news"
 	"github.com/bungysheep/news-api/pkg/protocols/database"
@@ -13,6 +16,7 @@ import (
 	"github.com/bungysheep/news-api/pkg/protocols/redis"
 	newsrepository "github.com/bungysheep/news-api/pkg/repositories/v1/newsrepository"
 	"github.com/bungysheep/news-api/pkg/services/v1/newsservice"
+	redisv7 "github.com/go-redis/redis/v7"
 )
 
 // NewsController type
@@ -60,6 +64,21 @@ func (newsCtl *NewsController) GetNews(w http.ResponseWriter, r *http.Request) {
 		page = 1
 	}
 
+	cachedValue, err := redis.RedisClient.Get(fmt.Sprintf("news_page_%d", page)).Result()
+	if err == redisv7.Nil {
+		log.Printf("Cache news_page_%d does not exist.\n", page)
+	} else if err != nil {
+		newsCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
+		return
+	} else {
+		log.Printf("Retrieving News page '%v' from cached.\n", page)
+
+		var cachedResult []interface{}
+		json.Unmarshal([]byte(cachedValue), &cachedResult)
+		newsCtl.WriteResponse(w, http.StatusOK, true, cachedResult, "")
+		return
+	}
+
 	log.Printf("Retrieving News page '%v'.\n", page)
 
 	newsSvc := newsservice.NewNewsService(newsrepository.NewNewsRepository(database.DbConnection, redis.RedisClient, elasticsearch.ESClient))
@@ -67,6 +86,11 @@ func (newsCtl *NewsController) GetNews(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		newsCtl.WriteResponse(w, http.StatusInternalServerError, false, nil, err.Error())
 		return
+	}
+
+	byteResult, _ := json.Marshal(result)
+	if err := redis.RedisClient.Set(fmt.Sprintf("news_page_%d", page), string(byteResult), configs.CACHEEXPIRYIN*time.Second).Err(); err != nil {
+		log.Printf("Failed to cache the read response.\n")
 	}
 
 	newsCtl.WriteResponse(w, http.StatusOK, true, result, "")

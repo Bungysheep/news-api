@@ -2,7 +2,7 @@ package configs
 
 const (
 	// PORT - Port number
-	PORT = "50051"
+	PORT = "50052"
 
 	// READTIMEOUT - Read timeout
 	READTIMEOUT = 10
@@ -27,4 +27,7 @@ const (
 
 	// NUMBERRECORDS - Number records per page
 	NUMBERRECORDS = 10
+
+	// CACHEEXPIRYIN - Cache expiry in 60 (sec)
+	CACHEEXPIRYIN = 60
 )
