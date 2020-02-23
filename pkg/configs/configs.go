@@ -22,8 +22,11 @@ const (
 	// REDISAUTH - Redis url
 	REDISAUTH = ""
 
-	// REDISNEWSPOSTCHANNEL - Redis news post channel
-	REDISNEWSPOSTCHANNEL = "NEWS_POST_CHANNEL"
+	// RABBITMQURL - RabbitMQ url
+	RABBITMQURL = "amqp://news-local-mq:news-local-mq@localhost:5672/"
+
+	// MQNEWSPOSTQUEUE - RabbitMQ news post queue
+	MQNEWSPOSTQUEUE = "NEWS_POST_QUEUE"
 
 	// NUMBERRECORDS - Number records per page
 	NUMBERRECORDS = 10

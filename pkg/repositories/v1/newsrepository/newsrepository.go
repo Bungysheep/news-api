@@ -11,6 +11,7 @@ import (
 	newsmodel "github.com/bungysheep/news-api/pkg/models/v1/news"
 	redisv7 "github.com/go-redis/redis/v7"
 	elasticv7 "github.com/olivere/elastic/v7"
+	"github.com/streadway/amqp"
 )
 
 // INewsRepository type
@@ -23,14 +24,16 @@ type INewsRepository interface {
 type newsRepository struct {
 	DB          *sql.DB
 	RedisClient *redisv7.Client
+	MQ          *amqp.Connection
 	ESClient    *elasticv7.Client
 }
 
 // NewNewsRepository - Create news repository
-func NewNewsRepository(db *sql.DB, redisClient *redisv7.Client, esClient *elasticv7.Client) INewsRepository {
+func NewNewsRepository(db *sql.DB, redisClient *redisv7.Client, mq *amqp.Connection, esClient *elasticv7.Client) INewsRepository {
 	return &newsRepository{
 		DB:          db,
 		RedisClient: redisClient,
+		MQ:          mq,
 		ESClient:    esClient,
 	}
 }
@@ -78,14 +81,25 @@ func (newsRepo *newsRepository) GetByID(ctx context.Context, id int64) (*newsmod
 	return result, nil
 }
 
-// Publish - Publish news into redis
+// Publish - Publish news into rabbitmq
 func (newsRepo *newsRepository) Publish(data *newsmodel.News) error {
-	err := newsRepo.RedisClient.Publish(configs.REDISNEWSPOSTCHANNEL, data).Err()
+	mqChan, err := newsRepo.MQ.Channel()
+	if err != nil {
+		return err
+	}
+	defer mqChan.Close()
+
+	queue, err := mqChan.QueueDeclare(configs.MQNEWSPOSTQUEUE, false, false, false, false, nil)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	dataByte, err := data.MarshalBinary()
+	if err != nil {
+		return err
+	}
+
+	return mqChan.Publish("", queue.Name, false, false, amqp.Publishing{ContentType: "application/json", Body: dataByte})
 }
 
 // GetIDsByPage - Returns news IDs per page

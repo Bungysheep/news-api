@@ -9,6 +9,7 @@ import (
 
 	"github.com/bungysheep/news-api/pkg/protocols/database"
 	"github.com/bungysheep/news-api/pkg/protocols/elasticsearch"
+	"github.com/bungysheep/news-api/pkg/protocols/mq"
 	"github.com/bungysheep/news-api/pkg/protocols/redis"
 	"github.com/bungysheep/news-api/pkg/protocols/rest"
 	_ "github.com/lib/pq"
@@ -24,6 +25,10 @@ func startUp() error {
 	restServer := rest.NewRestServer()
 
 	if err := redis.CreateRedisClient(); err != nil {
+		return err
+	}
+
+	if err := mq.CreateMqConnection(); err != nil {
 		return err
 	}
 
@@ -44,6 +49,9 @@ func startUp() error {
 
 			log.Printf("Closing redis client...\n")
 			redis.RedisClient.Close()
+
+			log.Printf("Closing rabbitmq connection...\n")
+			mq.MqConnection.Close()
 
 			log.Printf("Closing database connection...\n")
 			database.DbConnection.Close()
