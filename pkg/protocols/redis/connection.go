@@ -22,9 +22,14 @@ func CreateRedisClient() error {
 		return err
 	}
 
+	resolveRedisAuth, err := resolveRedisAuth()
+	if err != nil {
+		return err
+	}
+
 	client := redis.NewClient(&redis.Options{
 		Addr:     redisURL,
-		Password: "",
+		Password: resolveRedisAuth,
 		DB:       0,
 	})
 
@@ -42,4 +47,13 @@ func resolveRedisURL() (string, error) {
 	}
 
 	return configs.REDISURL, nil
+}
+
+func resolveRedisAuth() (string, error) {
+	redisAuth := os.Getenv("REDIS_AUTH")
+	if redisAuth != "" {
+		return redisAuth, nil
+	}
+
+	return configs.REDISAUTH, nil
 }

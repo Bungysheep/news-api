@@ -19,6 +19,9 @@ const (
 	// REDISURL - Redis url
 	REDISURL = "localhost:6379"
 
+	// REDISAUTH - Redis url
+	REDISAUTH = ""
+
 	// REDISNEWSPOSTCHANNEL - Redis news post channel
 	REDISNEWSPOSTCHANNEL = "NEWS_POST_CHANNEL"
 
