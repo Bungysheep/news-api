@@ -35,6 +35,20 @@ services:
         container_name: news-migration
         command: ["-path", "/migrations", "-database",  "postgres://news-local-pg:news-local-pg@news-pg:5432/news-local-pg?sslmode=disable", "up"]
     
+    news-consumer:
+        build:
+            context: https://github.com/Bungysheep/news-consumer.git
+            dockerfile: 'Dockerfile'
+        environment:
+            - ELASTICSEARCH_URL=http://news-es:9200/
+            - REDIS_URL=news-redis:6379
+            - DATABASE_URL=postgres://news-local-pg:news-local-pg@news-pg:5432/news-local-pg?sslmode=disable
+        depends_on:
+            - news-es
+            - news-redis
+            - news-pg
+        container_name: news-consumer
+    
     news-api:
         build:
             context: .

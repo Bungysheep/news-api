@@ -96,6 +96,10 @@ func (newsRepo *newsRepository) GetIDsByPage(ctx context.Context, page int) ([]i
 	descCreatedSort := elasticv7.NewFieldSort("created").Desc()
 	searchResult, err := newsRepo.ESClient.Search().Index("news").SortBy(descCreatedSort).From(fromIdx).Size(configs.NUMBERRECORDS).Do(ctx)
 	if err != nil {
+		esErr, ok := err.(*elasticv7.Error)
+		if ok && (esErr.Details.Type == "index_not_found_exception" || esErr.Details.Type == "search_phase_execution_exception") {
+			return ids, nil
+		}
 		return ids, err
 	}
 
