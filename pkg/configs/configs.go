@@ -2,7 +2,7 @@ package configs
 
 const (
 	// PORT - Port number
-	PORT = "50052"
+	PORT = "50051"
 
 	// READTIMEOUT - Read timeout
 	READTIMEOUT = 10
