@@ -2,7 +2,9 @@ package mq
 
 import (
 	"log"
+	"net"
 	"os"
+	"time"
 
 	"github.com/bungysheep/news-api/pkg/configs"
 	"github.com/streadway/amqp"
@@ -22,14 +24,18 @@ func CreateMqConnection() error {
 		return err
 	}
 
-	conn, err := amqp.Dial(resolveRabbitMQURL)
-	if err != nil {
-		return err
+	for i := 0; i < configs.NUMBERDIALATTEMPT; i++ {
+		MqConnection, err = amqp.Dial(resolveRabbitMQURL)
+		if err != nil {
+			opErr, ok := err.(*net.OpError)
+			if !ok && opErr.Op != "dial" {
+				return err
+			}
+		}
+		time.Sleep(5 * time.Second)
 	}
 
-	MqConnection = conn
-
-	return nil
+	return err
 }
 
 func resolveRabbitMQURL() (string, error) {

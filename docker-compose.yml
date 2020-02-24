@@ -15,7 +15,17 @@ services:
         ports:
             - 6379:6379
         container_name: news-redis
-
+    
+    news-mq:
+        image: rabbitmq:3-management
+        environment:
+            - RABBITMQ_DEFAULT_USER=news-local-mq
+            - RABBITMQ_DEFAULT_PASS=news-local-mq
+        ports:
+            - 5672:5672
+            - 15672:15672
+        container_name: news-mq
+                
     news-pg:
         image: postgres
         environment:
@@ -42,8 +52,11 @@ services:
         environment:
             - ELASTICSEARCH_URL=http://news-es:9200/
             - REDIS_URL=news-redis:6379
+            - RABBITMQ_URL=amqp://news-local-mq:news-local-mq@news-mq:5672/
             - DATABASE_URL=postgres://news-local-pg:news-local-pg@news-pg:5432/news-local-pg?sslmode=disable
+        restart: on-failure
         depends_on:
+            - news-mq
             - news-es
             - news-redis
             - news-pg
@@ -56,10 +69,13 @@ services:
         environment:
             - ELASTICSEARCH_URL=http://news-es:9200/
             - REDIS_URL=news-redis:6379
+            - RABBITMQ_URL=amqp://news-local-mq:news-local-mq@news-mq:5672/
             - DATABASE_URL=postgres://news-local-pg:news-local-pg@news-pg:5432/news-local-pg?sslmode=disable
         ports: 
             - 50051:50051
+        restart: on-failure
         depends_on:
+            - news-mq
             - news-es
             - news-redis
             - news-pg

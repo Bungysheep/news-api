@@ -33,4 +33,7 @@ const (
 
 	// CACHEEXPIRYIN - Cache expiry in 60 (sec)
 	CACHEEXPIRYIN = 60
+
+	// NUMBERDIALATTEMPT - Number dial attempt
+	NUMBERDIALATTEMPT = 5
 )

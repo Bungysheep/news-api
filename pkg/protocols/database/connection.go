@@ -2,9 +2,12 @@ package database
 
 import (
 	"database/sql"
-	"github.com/bungysheep/news-api/pkg/configs"
 	"log"
+	"net"
 	"os"
+	"time"
+
+	"github.com/bungysheep/news-api/pkg/configs"
 )
 
 var (
@@ -28,7 +31,18 @@ func CreateDbConnection() error {
 
 	DbConnection = db
 
-	return DbConnection.Ping()
+	for i := 0; i < configs.NUMBERDIALATTEMPT; i++ {
+		err = DbConnection.Ping()
+		if err != nil {
+			opErr, ok := err.(*net.OpError)
+			if !ok || opErr.Op != "dial" {
+				return err
+			}
+		}
+		time.Sleep(5 * time.Second)
+	}
+
+	return err
 }
 
 func resolveDbConnectionString() (string, error) {

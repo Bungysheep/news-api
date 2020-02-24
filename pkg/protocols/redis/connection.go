@@ -2,7 +2,9 @@ package redis
 
 import (
 	"log"
+	"net"
 	"os"
+	"time"
 
 	"github.com/bungysheep/news-api/pkg/configs"
 	"github.com/go-redis/redis/v7"
@@ -35,7 +37,16 @@ func CreateRedisClient() error {
 
 	RedisClient = client
 
-	_, err = client.Ping().Result()
+	for i := 0; i < configs.NUMBERDIALATTEMPT; i++ {
+		_, err = client.Ping().Result()
+		if err != nil {
+			opErr, ok := err.(*net.OpError)
+			if !ok || opErr.Op != "dial" {
+				return err
+			}
+		}
+		time.Sleep(5 * time.Second)
+	}
 
 	return err
 }
