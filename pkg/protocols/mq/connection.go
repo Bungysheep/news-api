@@ -28,11 +28,11 @@ func CreateMqConnection() error {
 		MqConnection, err = amqp.Dial(resolveRabbitMQURL)
 		if err != nil {
 			opErr, ok := err.(*net.OpError)
-			if !ok && opErr.Op != "dial" {
+			if !ok || opErr.Op != "dial" {
 				return err
 			}
+			time.Sleep(5 * time.Second)
 		}
-		time.Sleep(5 * time.Second)
 	}
 
 	return err

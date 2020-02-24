@@ -44,8 +44,8 @@ func CreateRedisClient() error {
 			if !ok || opErr.Op != "dial" {
 				return err
 			}
+			time.Sleep(5 * time.Second)
 		}
-		time.Sleep(5 * time.Second)
 	}
 
 	return err

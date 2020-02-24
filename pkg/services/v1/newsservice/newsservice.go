@@ -39,6 +39,7 @@ func (newsSvc *newsService) DoRead(ctx context.Context, page int) ([]*newsmodel.
 		return result, err
 	}
 
+	tempResult := make([]*newsmodel.News, len(ids))
 	resultChan := make(chan *newsmodel.News)
 	errChan := make(chan error)
 	done := make(chan bool)
@@ -64,9 +65,9 @@ func (newsSvc *newsService) DoRead(ctx context.Context, page int) ([]*newsmodel.
 	}()
 
 	var wg sync.WaitGroup
-	for _, newsID := range ids {
+	for i, newsID := range ids {
 		wg.Add(1)
-		go func(newsID int64, wg *sync.WaitGroup) {
+		go func(i int, newsID int64, wg *sync.WaitGroup) {
 			defer wg.Done()
 
 			itemNews, err := newsSvc.NewsRepository.GetByID(ctx, newsID)
@@ -76,9 +77,9 @@ func (newsSvc *newsService) DoRead(ctx context.Context, page int) ([]*newsmodel.
 			}
 
 			if itemNews != nil {
-				result = append(result, itemNews)
+				tempResult[i] = itemNews
 			}
-		}(newsID, &wg)
+		}(i, newsID, &wg)
 	}
 	wg.Wait()
 
@@ -86,6 +87,12 @@ func (newsSvc *newsService) DoRead(ctx context.Context, page int) ([]*newsmodel.
 	close(errChan)
 
 	<-done
+
+	for _, item := range tempResult {
+		if item != nil {
+			result = append(result, item)
+		}
+	}
 
 	return result, err
 }
