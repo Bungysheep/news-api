@@ -18,7 +18,11 @@ curl --location --request POST 'http://localhost:50051/v1/news' \
 ```
 ###### Response
 ```
-{"data":null,"message":"News has been posted.","success":true}
+{
+  "data":null,
+  "message":"News has been posted.",
+  "success":true
+}
 ```
 
 #### GET /v1/news
@@ -28,7 +32,24 @@ curl --location --request GET 'http://localhost:50051/v1/news?page=1'
 ```
 ###### Response
 ```
-{"data":[{"id":2,"author":"Author B","body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sapien mauris, viverra vel egestas sit amet, mattis sed libero. Etiam sed diam et felis venenatis porta. Aliquam semper sem eget lectus tristique vulputate.","created":"2020-02-25T15:04:05Z"},{"id":1,"author":"Author A","body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sapien mauris, viverra vel egestas sit amet, mattis sed libero. Etiam sed diam et felis venenatis porta. Aliquam semper sem eget lectus tristique vulputate.","created":"2020-02-24T15:04:05Z"}],"message":"","success":true}
+{
+  "data":[
+    {
+      "id":2,
+      "author":"Author B",
+      "body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sapien mauris, viverra vel egestas sit amet, mattis sed libero. Etiam sed diam et felis venenatis porta. Aliquam semper sem eget lectus tristique vulputate.",
+      "created":"2020-02-25T15:04:05Z"
+    },
+    {
+      "id":1,
+      "author":"Author A",
+      "body":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sapien mauris, viverra vel egestas sit amet, mattis sed libero. Etiam sed diam et felis venenatis porta. Aliquam semper sem eget lectus tristique vulputate.",
+      "created":"2020-02-24T15:04:05Z"
+    }
+  ],
+  "message":"",
+  "success":true
+}
 ```
 
 ## Docker compose
