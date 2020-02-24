@@ -1,6 +1,6 @@
 version: '3'
 
-services: 
+services:
     news-es:
         image: elasticsearch:7.4.0
         environment:
@@ -25,7 +25,7 @@ services:
             - 5672:5672
             - 15672:15672
         container_name: news-mq
-                
+    
     news-pg:
         image: postgres
         environment:
@@ -43,8 +43,8 @@ services:
         depends_on:
             - news-pg
         container_name: news-migration
-        command: ["-path", "/migrations", "-database",  "postgres://news-local-pg:news-local-pg@news-pg:5432/news-local-pg?sslmode=disable", "up"]
-    
+        command: ["/postgres_custom_migration.sh", "/migrations", "postgres://news-local-pg:news-local-pg@news-pg:5432/news-local-pg?sslmode=disable"]
+
     news-consumer:
         build:
             context: https://github.com/Bungysheep/news-consumer.git
@@ -61,7 +61,7 @@ services:
             - news-redis
             - news-pg
         container_name: news-consumer
-    
+        
     news-api:
         build:
             context: .
